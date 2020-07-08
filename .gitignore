@@ -1,0 +1,4 @@
+#environment variables
+config/
+
+node_modules/
