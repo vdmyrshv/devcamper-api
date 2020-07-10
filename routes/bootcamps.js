@@ -9,7 +9,8 @@ const {
 	getBootcamp,
 	createBootcamp,
 	updateBootcamp,
-	deleteBootcamp
+	deleteBootcamp,
+	getBootcampsInRadius
 } = require('../controllers/bootcamps')
 
 //muchh cleaner way of chaining HTTP method handlers like below:
@@ -24,5 +25,7 @@ router
 	.get(asyncHandler(getBootcamp))
 	.put(asyncHandler(updateBootcamp))
 	.delete(asyncHandler(deleteBootcamp))
+
+router.route('/:zipcode/:distance').get(asyncHandler(getBootcampsInRadius))
 
 module.exports = router

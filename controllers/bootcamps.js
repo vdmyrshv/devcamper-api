@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const Bootcamp = mongoose.model('Bootcamp')
 
 const ErrorResponse = require('../utils/errorResponse')
+const geocoder = require('../utils/geocoder')
 
 //it's god practice to add a comment header that describes the route, such as jsdoc below
 
@@ -94,4 +95,41 @@ exports.deleteBootcamp = async (req, res, next) => {
 		msg: `Deleted bootcamp with id ${req.params.id}`,
 		data: bootcamp
 	})
+}
+
+/**
+ * @desc get bootcamps within a radius
+ * @route GET /api/v1/bootcamps/radius/:zipcode/:distance
+ * @access Public
+ */
+exports.getBootcampsInRadius = async (req, res, next) => {
+	const { zipcode, distance } = req.params
+	const { latitude, longitude } = (await geocoder.geocode(zipcode))[0]
+
+	//Earth Radius = 3963 mi / 6378 km
+	const EARTH_RADIUS_MILES = 3958.8
+	const EARTH_RADIUS_KM = 6378.1
+	
+	// query would be to get radians by dividing distance of search by earth radius in respective units
+	//to use miles divide distance by miles, to use kilometers divide by kilometers
+	//divide distance by radius
+	const radius = distance/EARTH_RADIUS_MILES
+
+	const area = {
+		center: [longitude, latitude],
+		radius,
+		unique: true,
+      	spherical: true
+	}
+
+	// const bootcamps = await Bootcamp.find({
+	// 	location: {
+	// 		$geoWithin: {
+	// 			$centerSphere: [[longitude, latitude], radius]
+	// 		}
+	// 	}
+	// })
+
+	const bootcamps = await Bootcamp.find().circle('location', area)
+	res.status(200).json({ latitude, longitude, distance, results: bootcamps.length, data: bootcamps })
 }
