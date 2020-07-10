@@ -1,17 +1,6 @@
 const mongoose = require('mongoose')
-
-//this is an example of a GeoJSON subdocument
-const PointSchema = new mongoose.Schema({
-	type: {
-		type: String,
-		enum: ['Point'],
-		required: true
-	},
-	coordinates: {
-		type: [Number],
-		required: true
-	}
-})
+const slugify = require('slugify')
+const geocoder = require('../utils/geocoder')
 
 const BootcampSchema = new mongoose.Schema({
 	name: {
@@ -46,26 +35,23 @@ const BootcampSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-
-	// location: {
-	// 	//this is the schema for a GeoJSON Point
-	// 	type: {
-	// 		type: String, // Don't do `{ location: { type: String } }`
-	// 		enum: ['Point'], // 'location.type' must be 'Point'
-	// 		required: true
-	// 	},
-	// 	coordinates: {
-	// 		type: [Number],
-	// 		required: true,
-	// 		index: '2dsphere'
-	// 	},
-	// 	formattedAddress: String,
-	// 	street: String,
-	// 	city: String,
-	// 	state: String,
-	// 	zipcode: String,
-	// 	country: String
-	// },
+	location: {
+		//this is the schema for a GeoJSON Point
+		type: {
+			type: String, // Don't do `{ location: { type: String } }`
+			enum: ['Point'], // 'location.type' must be 'Point'
+		},
+		coordinates: {
+			type: [Number],
+			index: '2dsphere'
+		},
+		formattedAddress: String,
+		street: String,
+		city: String,
+		state: String,
+		zipcode: String,
+		country: String
+	},
 	careers: {
 		//array of strings
 		type: [String],
@@ -105,6 +91,49 @@ const BootcampSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now
 	}
+})
+
+//create bootcamp slug from the name
+BootcampSchema.pre('save', function (next) {
+	this.slug = slugify(this.name, {
+		lower: true
+	})
+	//DON'T FORGET NEXT() TO MOVE ON TO NEXT MIDDLEWARE!
+	next()
+})
+
+//create geocoded data from the address
+//IMPORTANT: if there are multiple hooks, they have to take in 'next' as an argument
+BootcampSchema.pre('save', async function (next) {
+	//for async await functions, the await statement must be wrapped in parenthesis
+	const geoCoords = (await geocoder.geocode(this.address))[0]
+
+	const {
+		latitude,
+		longitude,
+		formattedAddress,
+		streetName: street,
+		city,
+		countryCode: country,
+		zipcode,
+		stateCode: state
+	} = geoCoords
+
+	console.log(JSON.stringify(geoCoords))
+
+	this.location = {
+		type: 'Point',
+		coordinates: [longitude, latitude],
+		formattedAddress,
+		street,
+		city,
+		state,
+		zipcode,
+		country
+	}
+	this.address = undefined
+	//DON'T FORGET NEXT() TO MOVE ON TO NEXT MIDDLEWARE!
+	next()
 })
 
 mongoose.model('Bootcamp', BootcampSchema)

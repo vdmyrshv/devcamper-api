@@ -1,3 +1,6 @@
+//if obj is in special location you add an object to the config() method with the path
+require('dotenv').config({ path: './config/config.env' })
+
 //the new Stephen Grider syntax for importing models
 //these models are required in only once here, 
 //as multiple require(model) statements will throw an error on trying to create a duplicate model
@@ -5,8 +8,6 @@
 require('./models/Bootcamp')
 
 const express = require('express')
-//if obj is in special location you add an object to the config() method with the path
-require('dotenv').config({ path: './config/config.env' })
 
 //database
 const connectDB = require('./config/db')
