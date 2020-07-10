@@ -3,6 +3,8 @@
 const mongoose = require('mongoose')
 const Bootcamp = mongoose.model('Bootcamp')
 
+const ErrorResponse = require('../utils/errorResponse')
+
 //it's god practice to add a comment header that describes the route, such as jsdoc below
 
 /**
@@ -15,10 +17,11 @@ exports.getBootcamps = async (req, res, next) => {
 		const bootcamps = await Bootcamp.find()
 		res.status(200).json({
 			success: true,
+			count: bootcamps.length,
 			data: bootcamps
 		})
 	} catch (err) {
-		console.log('error getting all bootcamps ', err)
+		next(err)
 	}
 }
 
@@ -28,18 +31,15 @@ exports.getBootcamps = async (req, res, next) => {
  * @access Public
  */
 exports.getBootcamp = async (req, res, next) => {
-	try {
-		const bootcamp = await Bootcamp.findById(req.params.id)
-		res.status(200).json({
-			success: true,
-			msg: `Got bootcamp with id ${req.params.id}`,
-			data: bootcamp
-		})
-	} catch (err) {
-		res.status(500).json({
-			message: err
-		})
+	const bootcamp = await Bootcamp.findById(req.params.id)
+	if (!bootcamp) {
+		return next(err)
 	}
+	res.status(200).json({
+		success: true,
+		msg: `Got bootcamp with id ${req.params.id}`,
+		data: bootcamp
+	})
 }
 
 /**
@@ -48,20 +48,12 @@ exports.getBootcamp = async (req, res, next) => {
  * @access Private
  */
 exports.createBootcamp = async (req, res, next) => {
-
-	try {
-		const bootcamp = new Bootcamp(req.body)
-		await bootcamp.save()
-		res.status(201).send({
-			success: true,
-			data: bootcamp
-		})
-	} catch (err) {
-		res.status(400).json({
-			success: false,
-			message: err
-		})
-	}
+	const bootcamp = new Bootcamp(req.body)
+	await bootcamp.save()
+	res.status(201).send({
+		success: true,
+		data: bootcamp
+	})
 }
 
 /**
@@ -69,10 +61,21 @@ exports.createBootcamp = async (req, res, next) => {
  * @route PUT /api/v1/bootcamps
  * @access Private
  */
-exports.updateBootcamp = (req, res, next) => {
+exports.updateBootcamp = async (req, res, next) => {
+	//in the options object, new: true sets it so that the returned value is the updated object
+	const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+		new: true,
+		runValidators: true
+	})
+
+	if (!bootcamp) {
+		return next(err)
+	}
+
 	res.status(200).json({
 		success: true,
-		msg: `Update bootcamp ${req.params.id}`
+		msg: `updated bootcamp with id ${req.params.id}`,
+		data: bootcamp
 	})
 }
 
@@ -82,16 +85,13 @@ exports.updateBootcamp = (req, res, next) => {
  * @access Private
  */
 exports.deleteBootcamp = async (req, res, next) => {
-	try {
-		const bootcamp = await Bootcamp.findByIdAndRemove(req.params.id)
-		res.status(200).json({
-			success: true,
-			msg: `Deleted bootcamp with id ${req.params.id}`,
-			data: bootcamp
-		})
-	} catch (err) {
-		res.status(500).json({
-			message: err
-		})
+	const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id)
+	if (!bootcamp) {
+		return next(err)
 	}
+	res.status(200).json({
+		success: true,
+		msg: `Deleted bootcamp with id ${req.params.id}`,
+		data: bootcamp
+	})
 }

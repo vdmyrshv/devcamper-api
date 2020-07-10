@@ -11,6 +11,9 @@ require('dotenv').config({ path: './config/config.env' })
 //database
 const connectDB = require('./config/db')
 
+//connect to db simply by calling the function'
+connectDB()
+
 //middleware
 // const logger = require('./middleware/logger')
 const morgan = require('morgan')
@@ -20,6 +23,8 @@ require('colors')
 
 //route files
 const bootcamps = require('./routes/bootcamps')
+//error handler
+const errorHandler = require('./middleware/error')
 
 const app = express()
 
@@ -35,9 +40,7 @@ if (process.env.NODE_ENV === 'development') {
 
 //mount routers
 app.use('/api/v1/bootcamps', bootcamps)
-
-//connect to db simply by calling the function'
-connectDB()
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3000
 

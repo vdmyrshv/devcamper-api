@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
+const asyncHandler = require('../middleware/asyncHandler')
+
 //controllers import
 const {
 	getBootcamps,
@@ -12,8 +14,8 @@ const {
 
 //muchh cleaner way of chaining HTTP method handlers like below: 
 // route().get() chaining as opposed to single .get() .post() etc... lines of code
-router.route('/').get(getBootcamps).post(createBootcamp)
+router.route('/').get(asyncHandler(getBootcamps)).post(asyncHandler(createBootcamp))
 
-router.route('/:id').get(getBootcamp).put(updateBootcamp).delete(deleteBootcamp)
+router.route('/:id').get(asyncHandler(getBootcamp)).put(asyncHandler(updateBootcamp)).delete(asyncHandler(deleteBootcamp))
 
 module.exports = router
