@@ -14,16 +14,79 @@ const geocoder = require('../utils/geocoder')
  * @access Public
  */
 exports.getBootcamps = async (req, res, next) => {
-	try {
-		const bootcamps = await Bootcamp.find()
-		res.status(200).json({
-			success: true,
-			count: bootcamps.length,
-			data: bootcamps
-		})
-	} catch (err) {
-		next(err)
+	let query
+
+	//shallow copy of req.query
+	let reqQuery = { ...req.query }
+
+	//array of fields to exclude
+	const removeFields = ['select', 'sort', 'page', 'limit']
+
+	//loop over removeFields and delete them from reqQuery
+	removeFields.forEach(param => delete reqQuery[param])
+
+	console.log(reqQuery)
+
+	//create query string
+	let queryStr = JSON.stringify(reqQuery)
+
+	//create operators ($gt, $gte, $lt, etc..)
+	queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
+
+	//finding resource
+	query = Bootcamp.find(JSON.parse(queryStr))
+
+	//QUERY
+	if (req.query.select) {
+		const fields = req.query.select.split(',').join(' ')
+		console.log(fields)
+		query = query.select(fields)
 	}
+
+	//SORT
+	if (req.query.sort) {
+		const sortBy = req.query.sort.split(',').join(' ')
+		console.log(fields)
+		query = query.sort(sortBy)
+	} else {
+		//default
+		query = query.sort('-createdAt')
+	}
+
+	//PAGINATION
+	const page = parseInt(req.query.page) || 1
+	const limit = parseInt(req.query.limit) || 25
+	const startIndex = (page - 1) * limit
+	const endIndex = page * limit
+	const total = Bootcamp.countDocuments()
+
+	query = query.skip(startIndex).limit(limit)
+
+	//executirng the query
+	const bootcamps = await query
+
+	//Pagination result
+	const pagination = {}
+
+	if (endIndex < total) {
+		pagination.next = {
+			page: page + 1,
+			limit
+		}
+	}
+
+	if (startIndex > 0) {
+		pagination.prev = {
+			page: page - 1
+		}
+	}
+
+	res.status(200).json({
+		success: true,
+		count: bootcamps.length,
+		pagination,
+		data: bootcamps
+	})
 }
 
 /**
@@ -109,19 +172,19 @@ exports.getBootcampsInRadius = async (req, res, next) => {
 	//Earth Radius = 3963 mi / 6378 km
 	const EARTH_RADIUS_MILES = 3958.8
 	const EARTH_RADIUS_KM = 6378.1
-	
+
 	// query would be to get radians by dividing distance of search by earth radius in respective units
 	//to use miles divide distance by miles, to use kilometers divide by kilometers
 	//divide distance by radius
-	const radius = distance/EARTH_RADIUS_MILES
+	const radius = distance / EARTH_RADIUS_MILES
 
 	const area = {
 		center: [longitude, latitude],
 		radius,
 		unique: true,
-      	spherical: true
+		spherical: true
 	}
-
+	//another way to do this
 	// const bootcamps = await Bootcamp.find({
 	// 	location: {
 	// 		$geoWithin: {
@@ -131,5 +194,12 @@ exports.getBootcampsInRadius = async (req, res, next) => {
 	// })
 
 	const bootcamps = await Bootcamp.find().circle('location', area)
-	res.status(200).json({ latitude, longitude, distance, results: bootcamps.length, data: bootcamps })
+	res.status(200).json({
+		success: true,
+		latitude,
+		longitude,
+		distance,
+		results: bootcamps.length,
+		data: bootcamps
+	})
 }

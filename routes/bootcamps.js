@@ -26,6 +26,6 @@ router
 	.put(asyncHandler(updateBootcamp))
 	.delete(asyncHandler(deleteBootcamp))
 
-router.route('/:zipcode/:distance').get(asyncHandler(getBootcampsInRadius))
+router.route('/radius/:zipcode/:distance').get(asyncHandler(getBootcampsInRadius))
 
 module.exports = router
