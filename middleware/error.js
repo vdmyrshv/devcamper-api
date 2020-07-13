@@ -1,12 +1,19 @@
 const ErrorResponse = require('../utils/errorResponse')
 
 module.exports = (err, req, res, next) => {
-	let error
-	let message
+	let error = {}
+	let message = ''
+
+	//equate the statuscode from the err in the catch block to the local error variable for handling in the error middleware
+	error.statusCode = err.statusCode
+	error.message = err.message
 
 	//console.log(Object.values(err.errors).map(error => error.message).join('\n'))
 
 	//log to console for the dev
+	// console.log('message', err.message)
+	// console.log('status code', err.statusCode)
+	// console.log('name: ', err.name)
 	// console.log(err.stack.red)
 	// console.log(err.name.brightRed.bold.underline)
 
@@ -18,12 +25,18 @@ module.exports = (err, req, res, next) => {
 			break
 		//objectID not found
 		case 'ReferenceError':
-			message = `Resource not found`
-			error = new ErrorResponse(message, 404)
+			if (!message) {
+				message = `Resource not found`
+				error = new ErrorResponse(message, 404)
+			}
 			break
 		//missing required fields
 		case 'ValidationError':
-			message = 'VALIDATION ERROR: ' + Object.values(err.errors).map((error, index) => `${index+1}: ${error.message}`).join(' ')
+			message =
+				'VALIDATION ERROR: ' +
+				Object.values(err.errors)
+					.map((error, index) => `${index + 1}: ${error.message}`)
+					.join(' ')
 			error = new ErrorResponse(message, 422)
 			break
 	}

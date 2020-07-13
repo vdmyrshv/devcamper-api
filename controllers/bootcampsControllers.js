@@ -3,6 +3,8 @@
 const mongoose = require('mongoose')
 const Bootcamp = mongoose.model('Bootcamp')
 
+const ErrorResponse = require('../utils/errorResponse')
+
 const geocoder = require('../utils/geocoder')
 
 //it's god practice to add a comment header that describes the route, such as jsdoc below
@@ -99,7 +101,7 @@ exports.getBootcamps = async (req, res, next) => {
 exports.getBootcamp = async (req, res, next) => {
 	const bootcamp = await Bootcamp.findById(req.params.id)
 	if (!bootcamp) {
-		return next(err)
+		return next(new ErrorResponse(`Cannot find bootcamp with id ${req.params.id}`, 404))
 	}
 	res.status(200).json({
 		success: true,
@@ -114,8 +116,7 @@ exports.getBootcamp = async (req, res, next) => {
  * @access Private
  */
 exports.createBootcamp = async (req, res, next) => {
-	const bootcamp = new Bootcamp(req.body)
-	await bootcamp.save()
+	const bootcamp = await Bootcamp.create(req.body)
 	res.status(201).send({
 		success: true,
 		data: bootcamp
@@ -128,15 +129,18 @@ exports.createBootcamp = async (req, res, next) => {
  * @access Private
  */
 exports.updateBootcamp = async (req, res, next) => {
+
+	let bootcamp = await Bootcamp.findById(req.params.id)
+
+	if (!bootcamp) {
+		return next(new ErrorResponse(`Cannot find bootcamp with id ${req.params.id}`, 404))
+	}
+
 	//in the options object, new: true sets it so that the returned value is the updated object
-	const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+	bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
 		new: true,
 		runValidators: true
 	})
-
-	if (!bootcamp) {
-		return next(err)
-	}
 
 	res.status(200).json({
 		success: true,
@@ -154,7 +158,7 @@ exports.deleteBootcamp = async (req, res, next) => {
 	const bootcamp = await Bootcamp.findById(req.params.id)
 	
 	if (!bootcamp) {
-		return next(err)
+		return next(new ErrorResponse(`Cannot find bootcamp with id ${req.params.id}`, 422))
 	}
 
 	//we are NOT doing findbyidanddelete, instead doing remove seperately
