@@ -3,7 +3,6 @@
 const mongoose = require('mongoose')
 const Bootcamp = mongoose.model('Bootcamp')
 
-const ErrorResponse = require('../utils/errorResponse')
 const geocoder = require('../utils/geocoder')
 
 //it's god practice to add a comment header that describes the route, such as jsdoc below
@@ -34,7 +33,10 @@ exports.getBootcamps = async (req, res, next) => {
 	queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
 
 	//finding resource
-	query = Bootcamp.find(JSON.parse(queryStr))
+	//NOTE: the .populate is added to show the virtual field added as the
+	//second argument to the Bootcamp schema object and the Bootcamp.virtual() in the Bootcamp model
+	//it's a 'reverse populate' since the field is not there
+	query = Bootcamp.find(JSON.parse(queryStr)).populate('courses')
 
 	//QUERY
 	if (req.query.select) {
@@ -149,10 +151,16 @@ exports.updateBootcamp = async (req, res, next) => {
  * @access Private
  */
 exports.deleteBootcamp = async (req, res, next) => {
-	const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id)
+	const bootcamp = await Bootcamp.findById(req.params.id)
+	
 	if (!bootcamp) {
 		return next(err)
 	}
+
+	//we are NOT doing findbyidanddelete, instead doing remove seperately
+	//in order to trigger cascade delete of all courses with bootcamp field belonging to this id
+	await bootcamp.remove()
+
 	res.status(200).json({
 		success: true,
 		msg: `Deleted bootcamp with id ${req.params.id}`,

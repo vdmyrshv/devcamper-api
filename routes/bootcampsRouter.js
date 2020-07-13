@@ -1,5 +1,4 @@
-const express = require('express')
-const router = express.Router()
+const router = require('express').Router()
 
 const asyncHandler = require('../middleware/asyncHandler')
 
@@ -11,7 +10,13 @@ const {
 	updateBootcamp,
 	deleteBootcamp,
 	getBootcampsInRadius
-} = require('../controllers/bootcamps')
+} = require('../controllers/bootcampsControllers')
+
+
+//these two lines re-route anything from that path over to courses
+const coursesRouter = require('./coursesRouter')
+
+router.use('/:bootcampId/courses', coursesRouter)
 
 //muchh cleaner way of chaining HTTP method handlers like below:
 // route().get() chaining as opposed to single .get() .post() etc... lines of code
@@ -26,6 +31,8 @@ router
 	.put(asyncHandler(updateBootcamp))
 	.delete(asyncHandler(deleteBootcamp))
 
-router.route('/radius/:zipcode/:distance').get(asyncHandler(getBootcampsInRadius))
+router
+	.route('/radius/:zipcode/:distance')
+	.get(asyncHandler(getBootcampsInRadius))
 
 module.exports = router

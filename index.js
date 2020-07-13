@@ -6,6 +6,7 @@ require('dotenv').config({ path: './config/config.env' })
 //as multiple require(model) statements will throw an error on trying to create a duplicate model
 //calling a model is like this: const YourModel = mongoose.model('YourModel')
 require('./models/Bootcamp')
+require('./models/Course')
 
 const express = require('express')
 
@@ -23,7 +24,8 @@ const morgan = require('morgan')
 require('colors')
 
 //route files
-const bootcamps = require('./routes/bootcamps')
+const bootcamps = require('./routes/bootcampsRouter')
+const courses = require('./routes/coursesRouter')
 //error handler
 const errorHandler = require('./middleware/error')
 
@@ -41,6 +43,7 @@ if (process.env.NODE_ENV === 'development') {
 
 //mount routers
 app.use('/api/v1/bootcamps', bootcamps)
+app.use('/api/v1/courses', courses)
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 3000

@@ -7,9 +7,13 @@ const process = require('process')
 //Load files
 require('./models/Bootcamp')
 require('./models/Course')
+require('./models/Review')
+require('./models/User')
 const mongoose = require('mongoose')
 const Bootcamp = mongoose.model('Bootcamp')
 const Course = mongoose.model('Course')
+const Review = mongoose.model('Review')
+const User = mongoose.model('User')
 
 require('colors')
 
@@ -28,6 +32,12 @@ const bootcamps = JSON.parse(
 const courses = JSON.parse(
 	fs.readFileSync(path.join(__dirname, '_data/courses.json'), 'utf-8')
 )
+const reviews = JSON.parse(
+	fs.readFileSync(path.join(__dirname, '_data/reviews.json'), 'utf-8')
+)
+const users = JSON.parse(
+	fs.readFileSync(path.join(__dirname, '_data/users.json'), 'utf-8')
+)
 
 //import into DB
 const importData = async data => {
@@ -40,43 +50,58 @@ const importData = async data => {
 				break
 
 			case 'courses':
-                await Course.create(courses)
+				await Course.create(courses)
 				length = await Course.countDocuments()
+				break
+			case 'reviews':
+				await Review.create(reviews)
+				length = await Review.countDocuments()
+				break
+			case 'users':
+				await Course.create(users)
+				length = await User.countDocuments()
 				break
 			default: {
 				throw new Error('data not found!'.red)
-            }
+			}
 		}
 		console.log(`Successfully imported ${length} ${data}`.green.inverse)
 		process.exit()
 	} catch (err) {
-        console.error(err)
-        process.exit()
+		console.error(err)
+		process.exit()
 	}
 }
 
 //delete data
 const deleteData = async data => {
 	try {
-        let length
+		let length
 		switch (data) {
 			case 'bootcamps':
-                length = await Bootcamp.countDocuments()
-                await Bootcamp.deleteMany()
+				length = await Bootcamp.countDocuments()
+				await Bootcamp.deleteMany()
 				break
 			case 'courses':
-                length = await Course.countDocuments()
-                await Course.deleteMany()
+				length = await Course.countDocuments()
+				await Course.deleteMany()
+				break
+			case 'reviews':
+				length = await Review.countDocuments()
+				await Review.deleteMany()
+				break
+			case 'users':
+				length = await User.countDocuments()
+				await User.deleteMany()
 				break
 			default:
 				throw new Error('data not found!'.red)
-        }
-        console.log("length", length)
+		}
 		console.log(`Successfully deleted ${length} ${data}`.green.inverse)
 		process.exit()
 	} catch (err) {
-        console.error(err)
-        process.exit()
+		console.error(err)
+		process.exit()
 	}
 }
 
