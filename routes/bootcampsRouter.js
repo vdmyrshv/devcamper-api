@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const Bootcamp = require('mongoose').model('Bootcamp')
 
 const asyncHandler = require('../middleware/asyncHandler')
 
@@ -9,8 +10,11 @@ const {
 	createBootcamp,
 	updateBootcamp,
 	deleteBootcamp,
-	getBootcampsInRadius
+	getBootcampsInRadius,
+	uploadBootcampPhoto
 } = require('../controllers/bootcampsControllers')
+
+const advancedResults = require('../middleware/advancedResults')
 
 
 //these two lines re-route anything from that path over to courses
@@ -20,9 +24,11 @@ router.use('/:bootcampId/courses', coursesRouter)
 
 //muchh cleaner way of chaining HTTP method handlers like below:
 // route().get() chaining as opposed to single .get() .post() etc... lines of code
+router.route('/:id/photo').put(asyncHandler(uploadBootcampPhoto))
+
 router
 	.route('/')
-	.get(asyncHandler(getBootcamps))
+	.get(advancedResults(Bootcamp, 'courses'), asyncHandler(getBootcamps))
 	.post(asyncHandler(createBootcamp))
 
 router

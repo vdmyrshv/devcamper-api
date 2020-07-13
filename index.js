@@ -1,6 +1,9 @@
 //if obj is in special location you add an object to the config() method with the path
 require('dotenv').config({ path: './config/config.env' })
 
+//package for colorizing the console logs
+require('colors')
+
 //the new Stephen Grider syntax for importing models
 //these models are required in only once here, 
 //as multiple require(model) statements will throw an error on trying to create a duplicate model
@@ -8,7 +11,9 @@ require('dotenv').config({ path: './config/config.env' })
 require('./models/Bootcamp')
 require('./models/Course')
 
+const path = require('path')
 const express = require('express')
+const fileupload = require('express-fileupload')
 
 //database
 const connectDB = require('./config/db')
@@ -19,9 +24,6 @@ connectDB()
 //middleware
 // const logger = require('./middleware/logger')
 const morgan = require('morgan')
-
-//package for colorizing the console logs
-require('colors')
 
 //route files
 const bootcamps = require('./routes/bootcampsRouter')
@@ -40,6 +42,14 @@ if (process.env.NODE_ENV === 'development') {
 		morgan(':method :url :status :res[content-length] - :response-time ms')
 	)
 }
+
+//file uploading middleware
+app.use(fileupload())
+
+//set static folder app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'public')))
+
+console.log(path.join(__dirname, 'public'))
 
 //mount routers
 app.use('/api/v1/bootcamps', bootcamps)

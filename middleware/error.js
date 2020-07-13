@@ -20,8 +20,10 @@ module.exports = (err, req, res, next) => {
 	switch (err.name) {
 		//invalid ID key format
 		case 'CastError':
-			message = `improperly formatted id ${err.value}`
-			error = new ErrorResponse(message, 404)
+			if (!message) {
+				message = `improperly formatted id ${err.value}`
+				error = new ErrorResponse(message, 404)
+			}
 			break
 		//objectID not found
 		case 'ReferenceError':
