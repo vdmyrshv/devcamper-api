@@ -29,6 +29,7 @@ const morgan = require('morgan')
 //route files
 const bootcamps = require('./routes/bootcampsRouter')
 const courses = require('./routes/coursesRouter')
+const auth = require('./routes/authRouter')
 //error handler
 const errorHandler = require('./middleware/error')
 
@@ -50,9 +51,8 @@ app.use(fileupload())
 //set static folder app.use(express.static('public'))
 app.use(express.static(path.join(__dirname, 'public')))
 
-console.log(path.join(__dirname, 'public'))
-
-//mount routers
+//mount routers onto the route
+app.use('/api/v1/auth', auth)
 app.use('/api/v1/bootcamps', bootcamps)
 app.use('/api/v1/courses', courses)
 app.use(errorHandler)

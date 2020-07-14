@@ -13,9 +13,9 @@ const geocoder = require('../utils/geocoder')
 //it's god practice to add a comment header that describes the route, such as jsdoc below
 
 /**
- * @desc get all bootcamps
- * @route GET /api/v1/bootcamps
- * @access Public
+ * @desc	get all bootcamps
+ * @route	GET /api/v1/bootcamps
+ * @access	Public
  */
 exports.getBootcamps = async (req, res, next) => {
 
@@ -24,9 +24,9 @@ exports.getBootcamps = async (req, res, next) => {
 }
 
 /**
- * @desc get single bootcamp
- * @route GET /api/v1/bootcamps/:id
- * @access Public
+ * @desc	get single bootcamp
+ * @route	GET /api/v1/bootcamps/:id
+ * @access	Public
  */
 exports.getBootcamp = async (req, res, next) => {
 	const bootcamp = await Bootcamp.findById(req.params.id)
@@ -46,9 +46,9 @@ exports.getBootcamp = async (req, res, next) => {
 }
 
 /**
- * @desc create a bootcamp
- * @route POST /api/v1/bootcamps
- * @access Private
+ * @desc	create a bootcamp
+ * @route	POST /api/v1/bootcamps
+ * @access	Private
  */
 exports.createBootcamp = async (req, res, next) => {
 	const bootcamp = await Bootcamp.create(req.body)
@@ -59,9 +59,9 @@ exports.createBootcamp = async (req, res, next) => {
 }
 
 /**
- * @desc update a bootcamp
- * @route PUT /api/v1/bootcamps
- * @access Private
+ * @desc	update a bootcamp
+ * @route	PUT /api/v1/bootcamps
+ * @access	Private
  */
 exports.updateBootcamp = async (req, res, next) => {
 	let bootcamp = await Bootcamp.findById(req.params.id)
@@ -89,9 +89,9 @@ exports.updateBootcamp = async (req, res, next) => {
 }
 
 /**
- * @desc delete a bootcamp
- * @route DELETE /api/v1/bootcamps/:id
- * @access Private
+ * @desc	delete a bootcamp
+ * @route	DELETE /api/v1/bootcamps/:id
+ * @access	Private
  */
 exports.deleteBootcamp = async (req, res, next) => {
 	const bootcamp = await Bootcamp.findById(req.params.id)
@@ -117,9 +117,9 @@ exports.deleteBootcamp = async (req, res, next) => {
 }
 
 /**
- * @desc get bootcamps within a radius
- * @route GET /api/v1/bootcamps/radius/:zipcode/:distance
- * @access Public
+ * @desc	get bootcamps within a radius
+ * @route	GET /api/v1/bootcamps/radius/:zipcode/:distance
+ * @access	Public
  */
 exports.getBootcampsInRadius = async (req, res, next) => {
 	const { zipcode, distance } = req.params
@@ -161,9 +161,9 @@ exports.getBootcampsInRadius = async (req, res, next) => {
 }
 
 /**
- * @desc upload a photo
- * @route PUT /api/v1/bootcamps/:id/photo
- * @access Private
+ * @desc	upload a photo
+ * @route	PUT /api/v1/bootcamps/:id/photo
+ * @access	Private
  */
 exports.uploadBootcampPhoto = async (req, res, next) => {
 	const bootcamp = await Bootcamp.findById(req.params.id)

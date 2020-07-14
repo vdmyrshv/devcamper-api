@@ -8,10 +8,10 @@ const ErrorResponse = require('../utils/errorResponse')
 //it's god practice to add a comment header that describes the route, such as jsdoc below
 
 /**
- * @desc get all courses
- * @route GET /api/v1/courses
- * @route GET /api/v1/bootcamps/:bootcampId/courses
- * @access Public
+ * @desc	get all courses
+ * @route	GET /api/v1/courses
+ * @route	GET /api/v1/bootcamps/:bootcampId/courses
+ * @access	Public
  */
 exports.getCourses = async (req, res, next) => {
 	let query
@@ -35,9 +35,9 @@ exports.getCourses = async (req, res, next) => {
 }
 
 /**
- * @desc get single course
- * @route GET /api/v1/courses/:id
- * @access Public
+ * @desc	get single course
+ * @route	GET /api/v1/courses/:id
+ * @access	Public
  */
 exports.getCourse = async (req, res, next) => {
 	const course = await Course.findById(req.params.id).populate({
@@ -57,9 +57,9 @@ exports.getCourse = async (req, res, next) => {
 }
 
 /**
- * @desc create a course
- * @route POST /api/v1/bootcamps/:bootcampId/courses
- * @access Private
+ * @desc	create a course
+ * @route	POST /api/v1/bootcamps/:bootcampId/courses
+ * @access	Private
  */
 exports.createCourse = async (req, res, next) => {
 	//validation to see if that bootcamp exists before creating a course for it
@@ -87,9 +87,9 @@ exports.createCourse = async (req, res, next) => {
 }
 
 /**
- * @desc update a course
- * @route PUT /api/v1/courses/:id
- * @access Private
+ * @desc	update a course
+ * @route	PUT /api/v1/courses/:id
+ * @access	Private
  */
 exports.updateCourse = async (req, res, next) => {
 	let course = await Course.findById(req.params.id)
@@ -114,9 +114,9 @@ exports.updateCourse = async (req, res, next) => {
 }
 
 /**
- * @desc delete a course
- * @route DELETE /api/v1/courses/:id
- * @access Private
+ * @desc	delete a course
+ * @route	DELETE /api/v1/courses/:id
+ * @access	Private
  */
 exports.deleteCourse = async (req, res, next) => {
 	const course = await Course.findById(req.params.id)
