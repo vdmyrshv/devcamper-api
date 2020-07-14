@@ -20,22 +20,18 @@ exports.getCourses = async (req, res, next) => {
 		//you can either pass in a string of the field to be populated like so .populate('bootcamp')
 		//to get all fields from the bootcamp model
 		//or an object with the model name and fields to be populated as below
-		query = Course.find({ bootcamp: req.params.bootcampId }).populate({
-			path: 'bootcamp',
-			select: 'name description '
+		const courses = await Course.find({ bootcamp: req.params.bootcampId })
+
+		return res.status(200).json({
+			success: true,
+			count: courses.length,
+			data: courses
 		})
 	} else {
-		//the populate() method gets the information from the bootcamp instead of just returning the bootcamp's objectId
-		query = Course.find().populate('bootcamp')
+		res.status(200).json(req.advancedResults)
 	}
 
-	const courses = await query
-
-	res.status(200).json({
-		success: true,
-		count: courses.length,
-		data: courses
-	})
+	
 }
 
 /**
@@ -96,7 +92,6 @@ exports.createCourse = async (req, res, next) => {
  * @access Private
  */
 exports.updateCourse = async (req, res, next) => {
-
 	let course = await Course.findById(req.params.id)
 
 	if (!course) {
@@ -124,7 +119,6 @@ exports.updateCourse = async (req, res, next) => {
  * @access Private
  */
 exports.deleteCourse = async (req, res, next) => {
-
 	const course = await Course.findById(req.params.id)
 
 	if (!course) {

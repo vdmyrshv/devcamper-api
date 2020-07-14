@@ -10,6 +10,7 @@ require('colors')
 //calling a model is like this: const YourModel = mongoose.model('YourModel')
 require('./models/Bootcamp')
 require('./models/Course')
+require('./models/User')
 
 const path = require('path')
 const express = require('express')
