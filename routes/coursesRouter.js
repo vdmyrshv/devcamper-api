@@ -4,6 +4,7 @@ const router = require('express').Router({ mergeParams: true })
 const Course = require('mongoose').model('Course')
 
 const asyncHandler = require('../middleware/asyncHandler')
+const { protect } = require('../middleware/auth')
 
 const {
 	getCourses,
@@ -24,12 +25,12 @@ router
 		}),
 		asyncHandler(getCourses)
 	)
-	.post(asyncHandler(createCourse))
+	.post(protect, asyncHandler(createCourse))
 
 router
 	.route('/:id')
 	.get(asyncHandler(getCourse))
-	.put(asyncHandler(updateCourse))
-	.delete(asyncHandler(deleteCourse))
+	.put(protect, asyncHandler(updateCourse))
+	.delete(protect, asyncHandler(deleteCourse))
 
 module.exports = router

@@ -14,6 +14,7 @@ require('./models/User')
 
 const path = require('path')
 const express = require('express')
+const cookieParser = require('cookie-parser')
 const fileupload = require('express-fileupload')
 
 //database
@@ -35,6 +36,8 @@ const errorHandler = require('./middleware/error')
 
 const app = express()
 
+//cookie parser for adding a req.cookies object
+app.use(cookieParser())
 //about a year ago, express added a NATIVE BODY PARSER, you don't need body parser anymore
 //this substitutes bodyParser.json()
 app.use(express.json())
