@@ -73,6 +73,50 @@ exports.login = async (req, res, next) => {
 	sendTokenResponse(user, 200, res)
 }
 
+/**
+ * @desc	Get current logged in user
+ * @route	POST /api/v1/auth/me
+ * @access	Private
+ */
+exports.getMe = async (req, res, next) => {
+	const user = await User.findById(req.user.id)
+	res.status(200).json({
+		success: true,
+		data: user
+	})
+}
+
+/**
+ * @desc	Forgot password
+ * @route	POST /api/v1/auth/forgotpassword
+ * @access	Public
+ */
+exports.forgotPassword = async (req, res, next) => {
+	const user = await User.findOne({ email: req.body.email })
+
+	if (!user) {
+		return next(
+			new ErrorResponse(
+				`user with email address ${req.body.email} not found`,
+				404
+			)
+		)
+	}
+
+	//Get reset token
+	const resetToken = user.getResetPasswordToken()
+
+	//
+	await user.save({validateBeforeSave: false})
+
+	console.log(resetToken)
+
+	res.status(200).json({
+		success: true,
+		data: user
+	})
+}
+
 //get token from model, also create cookie and send response
 //this middleware takes care of all of that
 const sendTokenResponse = (user, statusCode, res) => {
@@ -91,18 +135,5 @@ const sendTokenResponse = (user, statusCode, res) => {
 	res.status(statusCode).cookie('token', token, options).json({
 		success: true,
 		token
-	})
-}
-
-/**
- * @desc	Get current logged in user
- * @route	POST /api/v1/auth/me
- * @access	Private
- */
-exports.getMe = async (req, res, next) => {
-	const user = await User.findById(req.user.id)
-	res.status(200).json({
-		success: true,
-		data: user
 	})
 }
