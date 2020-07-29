@@ -48,7 +48,6 @@ const importData = async data => {
 				await Bootcamp.create(bootcamps)
 				length = await Bootcamp.countDocuments()
 				break
-
 			case 'courses':
 				await Course.create(courses)
 				length = await Course.countDocuments()
@@ -58,8 +57,18 @@ const importData = async data => {
 				length = await Review.countDocuments()
 				break
 			case 'users':
-				await Course.create(users)
+				await User.create(users)
 				length = await User.countDocuments()
+				break
+			case 'all':
+				await Bootcamp.create(bootcamps)
+				length = await Bootcamp.countDocuments()
+				await Review.create(reviews)
+				length += await Review.countDocuments()
+				await Course.create(courses)
+				length += await User.countDocuments()
+				await User.create(users)
+				length += await User.countDocuments()
 				break
 			default: {
 				throw new Error('data not found!'.red)
@@ -92,6 +101,16 @@ const deleteData = async data => {
 				break
 			case 'users':
 				length = await User.countDocuments()
+				await User.deleteMany()
+				break
+			case 'all':
+				length = await Bootcamp.countDocuments()
+				await Bootcamp.deleteMany()
+				length += await Review.countDocuments()
+				await Review.deleteMany()
+				length += await Course.countDocuments()
+				await Course.deleteMany()
+				length += await User.countDocuments()
 				await User.deleteMany()
 				break
 			default:

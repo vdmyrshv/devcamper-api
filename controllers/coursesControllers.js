@@ -30,8 +30,6 @@ exports.getCourses = async (req, res, next) => {
 	} else {
 		res.status(200).json(req.advancedResults)
 	}
-
-	
 }
 
 /**
@@ -62,6 +60,9 @@ exports.getCourse = async (req, res, next) => {
  * @access	Private
  */
 exports.createCourse = async (req, res, next) => {
+	//tack on data fields from request bootcamp ID and user id to create ownership
+	req.body.bootcamp = req.params.bootcampId
+	req.body.user = req.user.id
 	//validation to see if that bootcamp exists before creating a course for it
 	const bootcamp = await Bootcamp.findById(req.params.bootcampId)
 
@@ -70,6 +71,17 @@ exports.createCourse = async (req, res, next) => {
 			new ErrorResponse(
 				`No bootcamp found with id ${req.params.bootcampId}`,
 				422
+			)
+		)
+	}
+
+	//make sure user is course owner
+	//bootcamp user id has to be converted to a string for this equivalency to work
+	if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+		return next(
+			new ErrorResponse(
+				`User ${req.user.id} is not authorized to create course for this bootcamp`,
+				401
 			)
 		)
 	}
@@ -100,6 +112,17 @@ exports.updateCourse = async (req, res, next) => {
 		)
 	}
 
+	//make sure user is course owner
+	//bootcamp user id has to be converted to a string for this equivalency to work
+	if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+		return next(
+			new ErrorResponse(
+				`User ${req.user.id} is not authorized to update this course`,
+				401
+			)
+		)
+	}
+
 	//in the options object, new: true sets it so that the returned value is the updated object
 	course = await Course.findByIdAndUpdate(req.params.id, req.body, {
 		new: true,
@@ -124,6 +147,17 @@ exports.deleteCourse = async (req, res, next) => {
 	if (!course) {
 		return next(
 			new ErrorResponse(`No course found with id ${req.params.id}`, 404)
+		)
+	}
+
+	//make sure user is course owner
+	//bootcamp user id has to be converted to a string for this equivalency to work
+	if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+		return next(
+			new ErrorResponse(
+				`User ${req.user.id} is not authorized to delete this course`,
+				401
+			)
 		)
 	}
 
