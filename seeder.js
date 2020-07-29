@@ -74,7 +74,7 @@ const importData = async data => {
 				throw new Error('data not found!'.red)
 			}
 		}
-		console.log(`Successfully imported ${length} ${data}`.green.inverse)
+		console.log(`Successfully imported ${length} ${data === 'all' ? 'records' : data}`.green.inverse)
 		process.exit()
 	} catch (err) {
 		console.error(err)
@@ -116,7 +116,7 @@ const deleteData = async data => {
 			default:
 				throw new Error('data not found!'.red)
 		}
-		console.log(`Successfully deleted ${length} ${data}`.green.inverse)
+		console.log(`Successfully deleted ${length} ${data === 'all' ? 'records' : data}`.green.inverse)
 		process.exit()
 	} catch (err) {
 		console.error(err)
